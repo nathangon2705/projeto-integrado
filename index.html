@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clínica Vida+ - Gerenciamento Moderno</title>
+  <style>
+    :root {
+      --primary-color: #007bff;
+      --primary-hover: #0056b3;
+      --secondary-color: #6c757d;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --warning-color: #ffc107;
+      --light-bg: #f8f9fa;
+      --light-surface: #ffffff;
+      --light-text: #212529;
+      --light-border: #dee2e6;
+      --dark-bg: #1a1a1a;
+      --dark-surface: #2c2c2c;
+      --dark-text: #f8f9fa;
+      --dark-border: #444;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+      --border-radius: 8px;
+    }
+
+    [data-theme="dark"] {
+      --primary-color: #3b9dff;
+      --primary-hover: #6bbaff;
+      --bg-color: var(--dark-bg);
+      --surface-color: var(--dark-surface);
+      --text-color: var(--dark-text);
+      --border-color: var(--dark-border);
+    }
+
+    [data-theme="light"] {
+      --bg-color: var(--light-bg);
+      --surface-color: var(--light-surface);
+      --text-color: var(--light-text);
+      --border-color: var(--light-border);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      transition: background-color 0.3s, color 0.3s;
+      font-size: 16px;
+    }
+
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 20px;
+    }
+
+    .sidebar {
+      background-color: var(--surface-color);
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      height: fit-content;
+    }
+
+    .sidebar h1 {
+      font-size: 1.5rem;
+      color: var(--primary-color);
+      margin: 0 0 20px 0;
+      text-align: center;
+    }
+
+    .nav-menu { list-style: none; padding: 0; margin: 0; }
+
+    .nav-menu li button {
+      display: block;
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      background: none;
+      border: none;
+      border-radius: 6px;
+      color: var(--text-color);
+      text-align: left;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .nav-menu li button:hover { background-color: var(--primary-color); color: white; }
+    .nav-menu li button.active { background-color: var(--primary-color); color: white; font-weight: 600; }
+    
+    .theme-toggle {
+        display: block;
+        width: 100%;
+        padding: 12px 15px;
+        margin-top: 20px;
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .content-area {
+      background-color: var(--surface-color);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    h2 {
+      margin-top: 0;
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .form-group { display: flex; flex-direction: column; }
+    label { margin-bottom: 5px; font-weight: 500; }
+    input, select {
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-size: 1rem;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      background-color: var(--primary-color);
+      color: white;
+      margin-top: 10px;
+    }
+    
+    .btn-danger { background-color: var(--danger-color); }
+
+    .message { padding: 15px; border-radius: 6px; margin-top: 20px; font-weight: 500; }
+    .message.success { background-color: #d4edda; color: #155724; }
+    .message.error { background-color: #f8d7da; color: #721c24; }
+
+    .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+    .data-table th { background-color: var(--bg-color); }
+    .data-table .debito { color: var(--danger-color); font-weight: bold; }
+    .data-table .sem-debito { color: var(--success-color); }
+
+  </style>
+</head>
+<body>
+
+  <div class="main-container">
+    <aside class="sidebar">
+      <h1>Clínica Vida+</h1>
+      <ul class="nav-menu" id="navMenu">
+        <li><button class="nav-btn active" data-tab="pacientes">Pacientes</button></li>
+        <li><button class="nav-btn" data-tab="medicos">Médicos</button></li>
+        <li><button class="nav-btn" data-tab="agenda">Agenda</button></li>
+        <li><button class="nav-btn" data-tab="pagamentos">Pagamentos</button></li>
+        <li><button class="nav-btn" data-tab="historico">Histórico</button></li>
+        <li><button class="nav-btn" data-tab="tiposAtendimento">Tipos de Atendimento</button></li>
+        <li><button class="nav-btn" data-tab="relatorios">Relatórios</button></li>
+      </ul>
+      <button id="themeToggle" class="theme-toggle">Mudar para Modo Escuro</button>
+    </aside>
+
+    <main class="content-area">
+      
+      <div id="pacientes" class="tab-content active">
+        <h2>Gerenciar Pacientes</h2>
+        <form id="formPaciente">
+          <div class="form-grid">
+            <div class="form-group"><label for="nome">Nome</label><input type="text" id="nome" required></div>
+            <div class="form-group"><label for="idade">Idade</label><input type="number" id="idade" required min="0"></div>
+            <div class="form-group"><label for="telefone">Telefone</label><input type="tel" id="telefone"></div>
+          </div>
+          <button type="submit" class="btn">Salvar Paciente</button>
+        </form>
+        <div id="msgPaciente" class="message" style="display:none;"></div>
+        <div id="listaPacientes"></div>
+      </div>
+
+      <div id="medicos" class="tab-content">
+        <h2>Gerenciar Médicos</h2>
+        <form id="formMedico">
+          <div class="form-grid">
+            <div class="form-group"><label for="nomeMedico">Nome</label><input type="text" id="nomeMedico" required></div>
+            <div class="form-group"><label for="crm">CRM</label><input type="text" id="crm" required></div>
+            <div class="form-group"><label for="especialidade">Especialidade</label><input type="text" id="especialidade" required></div>
+          </div>
+          <button type="submit" class="btn">Salvar Médico</button>
+        </form>
+        <div id="msgMedico" class="message" style="display:none;"></div>
+        <div id="listaMedicos"></div>
+      </div>
+
+      <div id="agenda" class="tab-content">
+        <h2>Agendamentos</h2>
+        <form id="formAgenda">
+            <div class="form-grid">
+                <div class="form-group"><label for="pacienteSelectAgenda">Paciente</label><select id="pacienteSelectAgenda" required></select></div>
+                <div class="form-group"><label for="medicoSelectAgenda">Médico</label><select id="medicoSelectAgenda" required></select></div>
+                <div class="form-group"><label for="tipoAtendimentoSelectAgenda">Tipo de Atendimento</label><select id="tipoAtendimentoSelectAgenda" required></select></div>
+                <div class="form-group"><label for="dataAgendamento">Data</label><input type="date" id="dataAgendamento" required></div>
+                <div class="form-group"><label for="horaAgendamento">Hora</label><input type="time" id="horaAgendamento" required></div>
+            </div>
+            <button type="submit" class="btn">Agendar</button>
+        </form>
+        <div id="msgAgenda" class="message" style="display:none;"></div>
+        <div id="listaAgenda"></div>
+      </div>
+
+      <div id="pagamentos" class="tab-content">
+        <h2>Controle de Pagamentos</h2>
+        <form id="formPagamento">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="pacienteSelectPagamento">Paciente</label>
+                    <select id="pacienteSelectPagamento" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="debitoAtual">Débito Atual</label>
+                    <input type="text" id="debitoAtual" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="valorPago">Valor a Pagar</label>
+                    <input type="number" id="valorPago" required min="0.01" step="0.01">
+                </div>
+            </div>
+            <button type="submit" class="btn">Registrar Pagamento</button>
+        </form>
+        <div id="msgPagamento" class="message" style="display:none;"></div>
+      </div>
+
+      <div id="historico" class="tab-content">
+        <h2>Histórico de Pacientes</h2>
+        <div class="form-group">
+            <label for="pacienteSelectHistorico">Selecione o Paciente</label>
+            <select id="pacienteSelectHistorico"></select>
+        </div>
+        <div id="listaHistorico"></div>
+      </div>
+
+      <div id="tiposAtendimento" class="tab-content">
+        <h2>Tipos de Atendimento</h2>
+        <form id="formTipoAtendimento">
+            <div class="form-grid">
+                <div class="form-group"><label for="nomeTipo">Nome do Atendimento</label><input type="text" id="nomeTipo" required></div>
+                <div class="form-group"><label for="valorTipo">Valor (R$)</label><input type="number" id="valorTipo" required min="0" step="0.01"></div>
+            </div>
+          <button type="submit" class="btn">Salvar Tipo</button>
+        </form>
+        <div id="msgTipo" class="message" style="display:none;"></div>
+        <div id="listaTiposAtendimento"></div>
+      </div>
+
+      <div id="relatorios" class="tab-content">
+        <h2>Relatórios</h2>
+        <div id="relatorioAtendimentos"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const API_URL = 'http://127.0.0.1:5000/api';
+
+      // --- Navegação e Tema ---
+      const themeToggle = document.getElementById('themeToggle');
+      const navMenu = document.getElementById('navMenu');
+      const tabs = document.querySelectorAll('.tab-content');
+
+      themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        themeToggle.textContent = newTheme === 'light' ? 'Mudar para Modo Escuro' : 'Mudar para Modo Claro';
+      });
+
+      navMenu.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+          const targetTab = e.target.dataset.tab;
+          navMenu.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+          e.target.classList.add('active');
+          tabs.forEach(tab => tab.classList.toggle('active', tab.id === targetTab));
+          
+          // Carrega dados dinâmicos ao abrir a aba
+          if (targetTab === 'agenda') loadAgendaForm();
+          if (targetTab === 'pagamentos') loadPagamentosForm();
+          if (targetTab === 'historico') loadHistoricoForm();
+          if (targetTab === 'relatorios') renderRelatorioAtendimentos();
+        }
+      });
+      
+      document.documentElement.setAttribute('data-theme', 'light');
+
+      // --- Funções Genéricas ---
+      async function fetchData(endpoint) {
+        try {
+            const response = await fetch(`${API_URL}${endpoint}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error(`Fetch error for ${endpoint}:`, error);
+            return [];
+        }
+      }
+
+      async function postData(endpoint, data) {
+        const response = await fetch(`${API_URL}${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        return { ok: response.ok, data: await response.json() };
+      }
+
+      function showMessage(elementId, text, type = 'success') {
+        const el = document.getElementById(elementId);
+        el.textContent = text;
+        el.className = `message ${type}`;
+        el.style.display = 'block';
+        setTimeout(() => { el.style.display = 'none'; }, 4000);
+      }
+
+      // --- Pacientes ---
+      const formPaciente = document.getElementById('formPaciente');
+      formPaciente.addEventListener('submit', async e => {
+        e.preventDefault();
+        const result = await postData('/pacientes', {
+            nome: document.getElementById('nome').value,
+            idade: parseInt(document.getElementById('idade').value),
+            telefone: document.getElementById('telefone').value
+        });
+        if (result.ok) {
+            showMessage('msgPaciente', 'Paciente salvo com sucesso!');
+            formPaciente.reset();
+            renderPacientes();
+        } else {
+            showMessage('msgPaciente', result.data.erro || 'Erro ao salvar', 'error');
+        }
+      });
+
+      async function renderPacientes() {
+        const pacientes = await fetchData('/pacientes');
+        const lista = document.getElementById('listaPacientes');
+        lista.innerHTML = `
+            <table class="data-table">
+                <thead><tr><th>Nome</th><th>Idade</th><th>Telefone</th><th>Débito</th></tr></thead>
+                <tbody>
+                    ${pacientes.map(p => `
+                        <tr>
+                            <td>${p.nome}</td>
+                            <td>${p.idade}</td>
+                            <td>${p.telefone || 'N/A'}</td>
+                            <td class="${p.debito > 0 ? 'debito' : 'sem-debito'}">R$ ${p.debito.toFixed(2)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>`;
+      }
+
+      // --- Médicos ---
+      const formMedico = document.getElementById('formMedico');
+      formMedico.addEventListener('submit', async e => {
+        e.preventDefault();
+        const result = await postData('/medicos', {
+            nome: document.getElementById('nomeMedico').value,
+            crm: document.getElementById('crm').value,
+            especialidade: document.getElementById('especialidade').value
+        });
+        if (result.ok) {
+            showMessage('msgMedico', 'Médico salvo com sucesso!');
+            formMedico.reset();
+            renderMedicos();
+        } else {
+            showMessage('msgMedico', result.data.erro || 'Erro ao salvar', 'error');
+        }
+      });
+
+      async function renderMedicos() {
+        const medicos = await fetchData('/medicos');
+        document.getElementById('listaMedicos').innerHTML = `
+            <table class="data-table">
+                <thead><tr><th>Nome</th><th>CRM</th><th>Especialidade</th></tr></thead>
+                <tbody>
+                    ${medicos.map(m => `<tr><td>${m.nome}</td><td>${m.crm}</td><td>${m.especialidade}</td></tr>`).join('')}
+                </tbody>
+            </table>`;
+      }
+
+      // --- Tipos de Atendimento ---
+      const formTipoAtendimento = document.getElementById('formTipoAtendimento');
+      formTipoAtendimento.addEventListener('submit', async e => {
+        e.preventDefault();
+        const result = await postData('/tipos_atendimento', {
+            nome: document.getElementById('nomeTipo').value,
+            valor: parseFloat(document.getElementById('valorTipo').value)
+        });
+        if (result.ok) {
+            showMessage('msgTipo', 'Tipo de atendimento salvo!');
+            formTipoAtendimento.reset();
+            renderTiposAtendimento();
+        } else {
+            showMessage('msgTipo', result.data.erro || 'Erro ao salvar', 'error');
+        }
+      });
+
+      async function renderTiposAtendimento() {
+        const tipos = await fetchData('/tipos_atendimento');
+        document.getElementById('listaTiposAtendimento').innerHTML = `
+            <table class="data-table">
+                <thead><tr><th>Nome</th><th>Valor</th></tr></thead>
+                <tbody>
+                    ${tipos.map(t => `<tr><td>${t.nome}</td><td>R$ ${t.valor.toFixed(2)}</td></tr>`).join('')}
+                </tbody>
+            </table>`;
+      }
+
+      // --- Agenda ---
+      async function loadAgendaForm() {
+        const [pacientes, medicos, tipos] = await Promise.all([
+            fetchData('/pacientes'), fetchData('/medicos'), fetchData('/tipos_atendimento')
+        ]);
+        document.getElementById('pacienteSelectAgenda').innerHTML = pacientes.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+        document.getElementById('medicoSelectAgenda').innerHTML = medicos.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
+        document.getElementById('tipoAtendimentoSelectAgenda').innerHTML = tipos.map(t => `<option value="${t.id}">${t.nome} (R$ ${t.valor.toFixed(2)})</option>`).join('');
+        renderAgenda();
+      }
+
+      const formAgenda = document.getElementById('formAgenda');
+      formAgenda.addEventListener('submit', async e => {
+        e.preventDefault();
+        const result = await postData('/agenda', {
+            pacienteId: parseInt(document.getElementById('pacienteSelectAgenda').value),
+            medicoId: parseInt(document.getElementById('medicoSelectAgenda').value),
+            tipoAtendimentoId: parseInt(document.getElementById('tipoAtendimentoSelectAgenda').value),
+            data: document.getElementById('dataAgendamento').value,
+            hora: document.getElementById('horaAgendamento').value,
+        });
+        if (result.ok) {
+            showMessage('msgAgenda', 'Agendamento realizado com sucesso!');
+            renderAgenda();
+            renderPacientes(); // Atualiza débitos na lista de pacientes
+        } else {
+            showMessage('msgAgenda', result.data.erro || 'Erro ao agendar', 'error');
+        }
+      });
+
+      async function renderAgenda() {
+        const agenda = await fetchData('/agenda');
+        document.getElementById('listaAgenda').innerHTML = `
+            <h3>Próximos Agendamentos</h3>
+            <table class="data-table">
+                <thead><tr><th>Data</th><th>Hora</th><th>Paciente</th><th>Médico</th><th>Atendimento</th></tr></thead>
+                <tbody>
+                    ${agenda.map(a => `
+                        <tr>
+                            <td>${a.data}</td><td>${a.hora}</td><td>${a.nomePaciente}</td>
+                            <td>${a.nomeMedico}</td><td>${a.nomeAtendimento}</td>
+                        </tr>`).join('')}
+                </tbody>
+            </table>`;
+      }
+
+      // --- Pagamentos ---
+      const pacienteSelectPagamento = document.getElementById('pacienteSelectPagamento');
+      async function loadPagamentosForm() {
+        const pacientes = await fetchData('/pacientes');
+        pacienteSelectPagamento.innerHTML = '<option value="">Selecione...</option>' + pacientes.map(p => `<option value="${p.id}" data-debito="${p.debito}">${p.nome}</option>`).join('');
+        document.getElementById('debitoAtual').value = '';
+      }
+      pacienteSelectPagamento.addEventListener('change', e => {
+          const selectedOption = e.target.options[e.target.selectedIndex];
+          const debito = selectedOption.dataset.debito || 0;
+          document.getElementById('debitoAtual').value = `R$ ${parseFloat(debito).toFixed(2)}`;
+      });
+      
+      const formPagamento = document.getElementById('formPagamento');
+      formPagamento.addEventListener('submit', async e => {
+          e.preventDefault();
+          const pacienteId = parseInt(pacienteSelectPagamento.value);
+          const valor = parseFloat(document.getElementById('valorPago').value);
+          if (!pacienteId || !valor) {
+              showMessage('msgPagamento', 'Selecione um paciente e insira um valor.', 'error');
+              return;
+          }
+          const result = await postData('/pagamentos', { pacienteId, valor });
+          if (result.ok) {
+              showMessage('msgPagamento', 'Pagamento registrado com sucesso!');
+              formPagamento.reset();
+              loadPagamentosForm(); // Recarrega o form
+              renderPacientes(); // Atualiza a lista principal de pacientes
+          } else {
+              showMessage('msgPagamento', result.data.erro || 'Erro ao registrar pagamento.', 'error');
+          }
+      });
+
+      // --- Histórico ---
+      const pacienteSelectHistorico = document.getElementById('pacienteSelectHistorico');
+      async function loadHistoricoForm() {
+          const pacientes = await fetchData('/pacientes');
+          pacienteSelectHistorico.innerHTML = '<option value="">Selecione um paciente...</option>' + pacientes.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+          document.getElementById('listaHistorico').innerHTML = '';
+      }
+      pacienteSelectHistorico.addEventListener('change', async e => {
+          const pacienteId = e.target.value;
+          if (!pacienteId) {
+              document.getElementById('listaHistorico').innerHTML = '';
+              return;
+          }
+          const historico = await fetchData(`/historico/${pacienteId}`);
+          document.getElementById('listaHistorico').innerHTML = `
+            <table class="data-table">
+                <thead><tr><th>Data</th><th>Hora</th><th>Status</th></tr></thead>
+                <tbody>
+                    ${historico.map(h => `<tr><td>${h.data}</td><td>${h.hora}</td><td>${h.status}</td></tr>`).join('')}
+                </tbody>
+            </table>`;
+      });
+
+      // --- Relatórios ---
+      async function renderRelatorioAtendimentos() {
+          const relatorio = await fetchData('/relatorios/atendimentos_por_paciente');
+          document.getElementById('relatorioAtendimentos').innerHTML = `
+            <h3>Total de Atendimentos por Paciente</h3>
+            <table class="data-table">
+                <thead><tr><th>Paciente</th><th>Total de Atendimentos</th></tr></thead>
+                <tbody>
+                    ${relatorio.map(r => `<tr><td>${r.nomePaciente}</td><td>${r.totalAtendimentos}</td></tr>`).join('')}
+                </tbody>
+            </table>`;
+      }
+
+      // --- Carga Inicial ---
+      renderPacientes();
+      renderMedicos();
+      renderTiposAtendimento();
+    });
+  </script>
+</body>
+</html>
